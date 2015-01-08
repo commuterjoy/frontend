@@ -73,7 +73,9 @@ define([
             'count',
             'timeAgo',
             'alsoOnVisible',
-            'showIndicators']);
+            'showIndicators',
+            'hasExtraActions',
+            'isHistoryOpen']);
 
         this.itemDefaults = _.reduce({
             showTags: 'showKickerTag',
@@ -85,6 +87,9 @@ define([
             }
             return defaults;
         }, undefined);
+
+        this.history = ko.observableArray();
+        this.state.isHistoryOpen(this.front.requiresConfirmation());
 
         this.setPending(true);
         this.load();
@@ -268,6 +273,7 @@ define([
                     );
                 });
 
+                this.populateHistory(this.raw.previously);
                 this.state.lastUpdated(this.raw.lastUpdated);
                 this.state.count(list.length);
                 this.decorate();
@@ -276,6 +282,20 @@ define([
 
         this.refreshVisibleStories();
         this.setPending(false);
+    };
+
+    Collection.prototype.populateHistory = function(list) {
+        if (!list || list.length === 0) {
+            return;
+        }
+        this.state.hasExtraActions(true);
+
+        list = list.slice(0, 5);
+        this.history(_.map(list, function (opts) {
+            return new Article(_.extend(opts, {
+                uneditable: true
+            }));
+        }));
     };
 
     Collection.prototype.closeAllArticles = function() {
@@ -290,6 +310,7 @@ define([
         _.each(this.groups, function(group) {
             contentApi.decorateItems(group.items());
         });
+        contentApi.decorateItems(this.history());
     };
 
     Collection.prototype.refresh = function() {
