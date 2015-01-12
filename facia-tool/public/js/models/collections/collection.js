@@ -302,7 +302,8 @@ define([
 
                     group.items.push(
                         new Article(_.extend(item, {
-                            group: group
+                            group: group,
+                            slimEditor: self.front.slimEditor()
                         }))
                     );
                 });
@@ -327,9 +328,10 @@ define([
         list = list.slice(0, 5);
         this.history(_.map(list, function (opts) {
             return new Article(_.extend(opts, {
-                uneditable: true
+                uneditable: true,
+                slimEditor: this.front.slimEditor()
             }));
-        }));
+        }, this));
     };
 
     Collection.prototype.closeAllArticles = function() {
